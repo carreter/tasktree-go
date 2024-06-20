@@ -1,5 +1,5 @@
 // Package tasktree defines a tree of tasks.
-package tasktree
+package task
 
 import (
 	"github.com/google/uuid"

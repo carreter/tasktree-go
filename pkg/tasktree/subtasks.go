@@ -3,6 +3,7 @@ package tasktree
 import (
 	"fmt"
 	"github.com/google/uuid"
+	"hobby-tracker/pkg/task"
 	"hobby-tracker/pkg/util"
 )
 
@@ -50,7 +51,7 @@ func (tree *TaskTree) UnmarkSubtask(subtaskId uuid.UUID) error {
 }
 
 // GetDirectSubtasksOf gets the direct children of a Task.
-func (tree *TaskTree) GetDirectSubtasksOf(parentId uuid.UUID) ([]Task, error) {
+func (tree *TaskTree) GetDirectSubtasksOf(parentId uuid.UUID) ([]task.Task, error) {
 	tree.rwMu.RLock()
 	defer tree.rwMu.RUnlock()
 
@@ -67,17 +68,17 @@ func (tree *TaskTree) GetDirectSubtasksOf(parentId uuid.UUID) ([]Task, error) {
 }
 
 // GetParentTask gets the parent of a given task if it exists.
-func (tree *TaskTree) GetParentTask(id uuid.UUID) (parent Task, exists bool, err error) {
+func (tree *TaskTree) GetParentTask(id uuid.UUID) (parent task.Task, exists bool, err error) {
 	tree.rwMu.RLock()
 	defer tree.rwMu.RUnlock()
 
 	if err := tree.assertTaskExists(id); err != nil {
-		return Task{}, false, err
+		return task.Task{}, false, err
 	}
 
 	parentId, exists := tree.subtaskOf[id]
 	if !exists {
-		return Task{}, false, nil
+		return task.Task{}, false, nil
 	}
 
 	return tree.tasks[parentId], true, nil
@@ -98,7 +99,7 @@ func (tree *TaskTree) IsSubtask(id uuid.UUID) (bool, error) {
 
 // GetAncestorTasks returns the ancestors of a task in order
 // (parent task, grandparent task, great grandparent task, etc.)
-func (tree *TaskTree) GetAncestorTasks(id uuid.UUID) ([]Task, error) {
+func (tree *TaskTree) GetAncestorTasks(id uuid.UUID) ([]task.Task, error) {
 	tree.rwMu.RLock()
 	defer tree.rwMu.RUnlock()
 
@@ -106,7 +107,7 @@ func (tree *TaskTree) GetAncestorTasks(id uuid.UUID) ([]Task, error) {
 		return nil, err
 	}
 
-	res := make([]Task, 0)
+	res := make([]task.Task, 0)
 	currId := id
 	for {
 		ancestor, exists, err := tree.GetParentTask(currId)

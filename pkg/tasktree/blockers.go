@@ -3,6 +3,7 @@ package tasktree
 import (
 	"fmt"
 	"github.com/google/uuid"
+	"hobby-tracker/pkg/task"
 	"hobby-tracker/pkg/util"
 )
 
@@ -48,7 +49,7 @@ func (tree *TaskTree) UnmarkBlocker(blockerId uuid.UUID, blockedId uuid.UUID) er
 }
 
 // GetDirectBlockers gets tasks that are directly blocking the specific task.
-func (tree *TaskTree) GetDirectBlockers(id uuid.UUID) ([]Task, error) {
+func (tree *TaskTree) GetDirectBlockers(id uuid.UUID) ([]task.Task, error) {
 	tree.rwMu.RLock()
 	defer tree.rwMu.RUnlock()
 
@@ -67,7 +68,7 @@ func (tree *TaskTree) GetDirectBlockers(id uuid.UUID) ([]Task, error) {
 // GetAllBlockers gets all tasks that either:
 //   - directly block a task
 //   - block a task's ancestors
-func (tree *TaskTree) GetAllBlockers(id uuid.UUID) ([]Task, error) {
+func (tree *TaskTree) GetAllBlockers(id uuid.UUID) ([]task.Task, error) {
 	tree.rwMu.RLock()
 	defer tree.rwMu.RUnlock()
 

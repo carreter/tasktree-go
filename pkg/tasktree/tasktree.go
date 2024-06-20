@@ -3,6 +3,7 @@ package tasktree
 import (
 	"fmt"
 	"github.com/google/uuid"
+	"hobby-tracker/pkg/task"
 	"hobby-tracker/pkg/util"
 	"sync"
 )
@@ -11,19 +12,19 @@ import (
 type TaskTree struct {
 	rwMu sync.RWMutex
 
-	tasks map[uuid.UUID]Task
+	tasks map[uuid.UUID]task.Task
 
-	subtasks  map[uuid.UUID][]uuid.UUID
-	subtaskOf map[uuid.UUID]uuid.UUID
+	subtasks  map[uuid.UUID][]uuid.UUID // map from tasks to their subtasks
+	subtaskOf map[uuid.UUID]uuid.UUID   // map from subtasks to their parent tasks
 
-	blocks    map[uuid.UUID][]uuid.UUID
-	blockedBy map[uuid.UUID][]uuid.UUID
+	blocks    map[uuid.UUID][]uuid.UUID // map from blocking tasks to the tasks they block
+	blockedBy map[uuid.UUID][]uuid.UUID // map from blocked tasks to the tasks they are blocked by
 }
 
 // NewTaskTree creates a new, empty TaskTree.
 func NewTaskTree() *TaskTree {
 	return &TaskTree{
-		tasks:    make(map[uuid.UUID]Task),
+		tasks:    make(map[uuid.UUID]task.Task),
 		subtasks: make(map[uuid.UUID][]uuid.UUID),
 		blocks:   make(map[uuid.UUID][]uuid.UUID),
 	}
@@ -37,14 +38,14 @@ func (tree *TaskTree) assertTaskExists(id uuid.UUID) error {
 	return nil
 }
 
-func (tree *TaskTree) idsToTasks(ids []uuid.UUID) []Task {
-	return util.Map(ids, func(id uuid.UUID) Task {
+func (tree *TaskTree) idsToTasks(ids []uuid.UUID) []task.Task {
+	return util.Map(ids, func(id uuid.UUID) task.Task {
 		return tree.tasks[id]
 	})
 }
 
 // AddTask adds a Task object to the TaskTree.
-func (tree *TaskTree) AddTask(task Task) error {
+func (tree *TaskTree) AddTask(task task.Task) error {
 	tree.rwMu.Lock()
 	defer tree.rwMu.Unlock()
 
@@ -57,7 +58,7 @@ func (tree *TaskTree) AddTask(task Task) error {
 }
 
 // GetTask gets a Task object in the TaskTree by its id.
-func (tree *TaskTree) GetTask(id uuid.UUID) (task Task, exists bool) {
+func (tree *TaskTree) GetTask(id uuid.UUID) (task task.Task, exists bool) {
 	tree.rwMu.RLock()
 	defer tree.rwMu.RUnlock()
 	task, exists = tree.tasks[id]
@@ -78,7 +79,7 @@ func (tree *TaskTree) DeleteTask(id uuid.UUID) error {
 }
 
 // UpdateTask replaces a task in the tree with an updated version.
-func (tree *TaskTree) UpdateTask(task Task) error {
+func (tree *TaskTree) UpdateTask(task task.Task) error {
 	tree.rwMu.Lock()
 	defer tree.rwMu.Unlock()
 
