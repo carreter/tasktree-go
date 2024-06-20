@@ -20,6 +20,7 @@ type TaskTree struct {
 	blockedBy map[uuid.UUID][]uuid.UUID
 }
 
+// NewTaskTree creates a new, empty TaskTree.
 func NewTaskTree() *TaskTree {
 	return &TaskTree{
 		tasks:    make(map[uuid.UUID]Task),
@@ -42,6 +43,7 @@ func (tree *TaskTree) idsToTasks(ids []uuid.UUID) []Task {
 	})
 }
 
+// AddTask adds a Task object to the TaskTree.
 func (tree *TaskTree) AddTask(task Task) error {
 	tree.rwMu.Lock()
 	defer tree.rwMu.Unlock()
@@ -54,6 +56,7 @@ func (tree *TaskTree) AddTask(task Task) error {
 	return nil
 }
 
+// GetTask gets a Task object in the TaskTree by its id.
 func (tree *TaskTree) GetTask(id uuid.UUID) (task Task, exists bool) {
 	tree.rwMu.RLock()
 	defer tree.rwMu.RUnlock()
@@ -61,6 +64,7 @@ func (tree *TaskTree) GetTask(id uuid.UUID) (task Task, exists bool) {
 	return
 }
 
+// DeleteTask deletes a task from the tree by id.
 func (tree *TaskTree) DeleteTask(id uuid.UUID) error {
 	tree.rwMu.Lock()
 	defer tree.rwMu.Unlock()
@@ -73,6 +77,7 @@ func (tree *TaskTree) DeleteTask(id uuid.UUID) error {
 	return nil
 }
 
+// UpdateTask replaces a task in the tree with an updated version.
 func (tree *TaskTree) UpdateTask(task Task) error {
 	tree.rwMu.Lock()
 	defer tree.rwMu.Unlock()

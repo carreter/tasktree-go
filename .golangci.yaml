@@ -1,0 +1,16 @@
+linters:
+  enable:
+    - godot
+    - gofmt
+    - revive
+
+linters-settings:
+  revive:
+    rules:
+      - name: var-naming
+        disabled: true
+      - name: exported
+        disabled: false
+
+issues:
+  exclude-use-default: false

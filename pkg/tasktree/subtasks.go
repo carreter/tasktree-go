@@ -49,6 +49,7 @@ func (tree *TaskTree) UnmarkSubtask(subtaskId uuid.UUID) error {
 	return nil
 }
 
+// GetDirectSubtasksOf gets the direct children of a Task.
 func (tree *TaskTree) GetDirectSubtasksOf(parentId uuid.UUID) ([]Task, error) {
 	tree.rwMu.RLock()
 	defer tree.rwMu.RUnlock()
@@ -65,6 +66,7 @@ func (tree *TaskTree) GetDirectSubtasksOf(parentId uuid.UUID) ([]Task, error) {
 	return tree.idsToTasks(subtaskIds), nil
 }
 
+// GetParentTask gets the parent of a given task if it exists.
 func (tree *TaskTree) GetParentTask(id uuid.UUID) (parent Task, exists bool, err error) {
 	tree.rwMu.RLock()
 	defer tree.rwMu.RUnlock()
@@ -81,6 +83,7 @@ func (tree *TaskTree) GetParentTask(id uuid.UUID) (parent Task, exists bool, err
 	return tree.tasks[parentId], true, nil
 }
 
+// IsSubtask determines whether a Task is a subtask (i.e. has a parent Task).
 func (tree *TaskTree) IsSubtask(id uuid.UUID) (bool, error) {
 	tree.rwMu.RLock()
 	defer tree.rwMu.RUnlock()
