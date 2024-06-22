@@ -3,7 +3,7 @@ package tasktree
 import (
 	"bytes"
 	"encoding/gob"
-	"github.com/carreter/tasktree-go/task"
+	"github.com/carreter/tasktree-go/pkg/task"
 )
 
 // GobEncode allows for gob encoding of a TaskTree.

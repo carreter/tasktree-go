@@ -2,8 +2,8 @@ package treeview
 
 import (
 	"fmt"
-	"github.com/carreter/tasktree-go/task"
-	"github.com/carreter/tasktree-go/tasktree"
+	"github.com/carreter/tasktree-go/pkg/task"
+	"github.com/carreter/tasktree-go/pkg/tasktree"
 	"github.com/charmbracelet/lipgloss/tree"
 	"strings"
 )

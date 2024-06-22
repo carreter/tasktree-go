@@ -2,9 +2,9 @@ package commandview
 
 import (
 	"fmt"
-	"github.com/carreter/tasktree-go/task"
-	"github.com/carreter/tasktree-go/tasktree"
-	"github.com/carreter/tasktree-go/util"
+	"github.com/carreter/tasktree-go/pkg/task"
+	"github.com/carreter/tasktree-go/pkg/tasktree"
+	"github.com/carreter/tasktree-go/pkg/util"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"

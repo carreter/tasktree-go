@@ -3,7 +3,7 @@ package app
 import (
 	"github.com/carreter/tasktree-go/app/commandview"
 	"github.com/carreter/tasktree-go/app/treeview"
-	"github.com/carreter/tasktree-go/tasktree"
+	"github.com/carreter/tasktree-go/pkg/tasktree"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"

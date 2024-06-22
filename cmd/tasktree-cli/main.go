@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/carreter/tasktree-go/app"
-	"github.com/carreter/tasktree-go/tasktree"
+	"github.com/carreter/tasktree-go/pkg/tasktree"
 	tea "github.com/charmbracelet/bubbletea"
 	"os"
 )

@@ -2,7 +2,7 @@ package treeview
 
 import (
 	"fmt"
-	"github.com/carreter/tasktree-go/tasktree"
+	"github.com/carreter/tasktree-go/pkg/tasktree"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/google/uuid"
 )
