@@ -2,13 +2,12 @@ package tasktree
 
 import (
 	"fmt"
-	"github.com/google/uuid"
-	"hobby-tracker/pkg/task"
-	"hobby-tracker/pkg/util"
+	"github.com/carreter/tasktree-go/task"
+	"github.com/carreter/tasktree-go/util"
 )
 
 // MarkSubtask marks one task (subtask) as a subtask of another (parent).
-func (tree *TaskTree) MarkSubtask(parentId uuid.UUID, subtaskId uuid.UUID) error {
+func (tree *TaskTree) MarkSubtask(parentId task.Id, subtaskId task.Id) error {
 	tree.rwMu.Lock()
 	defer tree.rwMu.Unlock()
 
@@ -23,6 +22,8 @@ func (tree *TaskTree) MarkSubtask(parentId uuid.UUID, subtaskId uuid.UUID) error
 		return fmt.Errorf("task %v is already a subtask of %v", subtaskId, existingParentId)
 	}
 
+	tree.roots = util.Remove(tree.roots, subtaskId)
+
 	// TODO: Add subtask cycle detection.
 
 	tree.subtasks[parentId] = append(tree.subtasks[parentId], subtaskId)
@@ -32,7 +33,7 @@ func (tree *TaskTree) MarkSubtask(parentId uuid.UUID, subtaskId uuid.UUID) error
 
 // UnmarkSubtask marks a task as an independent task rather than a subtask.
 // Does not error if task was already an independent task.
-func (tree *TaskTree) UnmarkSubtask(subtaskId uuid.UUID) error {
+func (tree *TaskTree) UnmarkSubtask(subtaskId task.Id) error {
 	tree.rwMu.Lock()
 	defer tree.rwMu.Unlock()
 
@@ -51,7 +52,7 @@ func (tree *TaskTree) UnmarkSubtask(subtaskId uuid.UUID) error {
 }
 
 // GetDirectSubtasksOf gets the direct children of a Task.
-func (tree *TaskTree) GetDirectSubtasksOf(parentId uuid.UUID) ([]task.Task, error) {
+func (tree *TaskTree) GetDirectSubtasksOf(parentId task.Id) ([]task.Task, error) {
 	tree.rwMu.RLock()
 	defer tree.rwMu.RUnlock()
 
@@ -68,7 +69,7 @@ func (tree *TaskTree) GetDirectSubtasksOf(parentId uuid.UUID) ([]task.Task, erro
 }
 
 // GetParentTask gets the parent of a given task if it exists.
-func (tree *TaskTree) GetParentTask(id uuid.UUID) (parent task.Task, exists bool, err error) {
+func (tree *TaskTree) GetParentTask(id task.Id) (parent task.Task, exists bool, err error) {
 	tree.rwMu.RLock()
 	defer tree.rwMu.RUnlock()
 
@@ -85,7 +86,7 @@ func (tree *TaskTree) GetParentTask(id uuid.UUID) (parent task.Task, exists bool
 }
 
 // IsSubtask determines whether a Task is a subtask (i.e. has a parent Task).
-func (tree *TaskTree) IsSubtask(id uuid.UUID) (bool, error) {
+func (tree *TaskTree) IsSubtask(id task.Id) (bool, error) {
 	tree.rwMu.RLock()
 	defer tree.rwMu.RUnlock()
 
@@ -99,7 +100,7 @@ func (tree *TaskTree) IsSubtask(id uuid.UUID) (bool, error) {
 
 // GetAncestorTasks returns the ancestors of a task in order
 // (parent task, grandparent task, great grandparent task, etc.)
-func (tree *TaskTree) GetAncestorTasks(id uuid.UUID) ([]task.Task, error) {
+func (tree *TaskTree) GetAncestorTasks(id task.Id) ([]task.Task, error) {
 	tree.rwMu.RLock()
 	defer tree.rwMu.RUnlock()
 

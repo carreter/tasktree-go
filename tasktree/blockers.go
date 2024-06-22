@@ -2,13 +2,12 @@ package tasktree
 
 import (
 	"fmt"
-	"github.com/google/uuid"
-	"hobby-tracker/pkg/task"
-	"hobby-tracker/pkg/util"
+	"github.com/carreter/tasktree-go/task"
+	"github.com/carreter/tasktree-go/util"
 )
 
 // MarkBlocker marks one task (blocker) as a prerequisite for another task (blocked).
-func (tree *TaskTree) MarkBlocker(blockerId uuid.UUID, blockedId uuid.UUID) error {
+func (tree *TaskTree) MarkBlocker(blockerId task.Id, blockedId task.Id) error {
 	tree.rwMu.Lock()
 	defer tree.rwMu.Unlock()
 
@@ -27,7 +26,7 @@ func (tree *TaskTree) MarkBlocker(blockerId uuid.UUID, blockedId uuid.UUID) erro
 }
 
 // UnmarkBlocker marks one task (blocker) as a no longer being a prerequisite for another task (blocked).
-func (tree *TaskTree) UnmarkBlocker(blockerId uuid.UUID, blockedId uuid.UUID) error {
+func (tree *TaskTree) UnmarkBlocker(blockerId task.Id, blockedId task.Id) error {
 	tree.rwMu.Lock()
 	defer tree.rwMu.Unlock()
 
@@ -49,7 +48,7 @@ func (tree *TaskTree) UnmarkBlocker(blockerId uuid.UUID, blockedId uuid.UUID) er
 }
 
 // GetDirectBlockers gets tasks that are directly blocking the specific task.
-func (tree *TaskTree) GetDirectBlockers(id uuid.UUID) ([]task.Task, error) {
+func (tree *TaskTree) GetDirectBlockers(id task.Id) ([]task.Task, error) {
 	tree.rwMu.RLock()
 	defer tree.rwMu.RUnlock()
 
@@ -68,7 +67,7 @@ func (tree *TaskTree) GetDirectBlockers(id uuid.UUID) ([]task.Task, error) {
 // GetAllBlockers gets all tasks that either:
 //   - directly block a task
 //   - block a task's ancestors
-func (tree *TaskTree) GetAllBlockers(id uuid.UUID) ([]task.Task, error) {
+func (tree *TaskTree) GetAllBlockers(id task.Id) ([]task.Task, error) {
 	tree.rwMu.RLock()
 	defer tree.rwMu.RUnlock()
 
@@ -78,7 +77,7 @@ func (tree *TaskTree) GetAllBlockers(id uuid.UUID) ([]task.Task, error) {
 		return nil, err
 	}
 
-	seenBlockers := make(map[uuid.UUID]struct{})
+	seenBlockers := make(map[task.Id]struct{})
 
 	blockers, err := tree.GetDirectBlockers(id)
 	if err != nil {
@@ -111,7 +110,7 @@ func (tree *TaskTree) GetAllBlockers(id uuid.UUID) ([]task.Task, error) {
 }
 
 // IsBlocked checks if a task or any of its parent tasks are blocked.
-func (tree *TaskTree) IsBlocked(id uuid.UUID) (bool, error) {
+func (tree *TaskTree) IsBlocked(id task.Id) (bool, error) {
 	tree.rwMu.RLock()
 	defer tree.rwMu.RUnlock()
 

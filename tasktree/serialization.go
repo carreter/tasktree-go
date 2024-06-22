@@ -3,7 +3,7 @@ package tasktree
 import (
 	"bytes"
 	"encoding/gob"
-	"github.com/google/uuid"
+	"github.com/carreter/tasktree-go/task"
 )
 
 // GobEncode allows for gob encoding of a TaskTree.
@@ -68,7 +68,7 @@ func (tree *TaskTree) rehydrate() {
 		for _, blockedId := range blockedIds {
 			blockedBy, exists := tree.blockedBy[blockedId]
 			if !exists {
-				blockedBy = make([]uuid.UUID, 0)
+				blockedBy = make([]task.Id, 0)
 			}
 			tree.blockedBy[blockedId] = append(blockedBy, blockerId)
 		}

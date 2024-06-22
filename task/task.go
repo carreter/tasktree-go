@@ -2,7 +2,6 @@
 package task
 
 import (
-	"github.com/google/uuid"
 	"time"
 )
 
@@ -25,9 +24,11 @@ const (
 	Low
 )
 
+type Id string
+
 // A Task represents an individual task.
 type Task struct {
-	Id            uuid.UUID
+	Id            Id
 	Name          string
 	Description   string
 	EstimatedTime time.Duration
