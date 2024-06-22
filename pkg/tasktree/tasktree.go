@@ -79,8 +79,12 @@ func (tree *TaskTree) DeleteTask(id task.Id) error {
 		return err
 	}
 
-	if _, isSubtask := tree.subtaskOf[id]; !isSubtask {
+	parentId, isSubtask := tree.subtaskOf[id]
+	if !isSubtask {
 		tree.roots = util.Remove(tree.roots, id)
+	} else {
+		tree.subtasks[parentId] = util.Remove(tree.subtasks[parentId], id)
+		delete(tree.subtaskOf, id)
 	}
 
 	delete(tree.tasks, id)
