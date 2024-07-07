@@ -1,10 +1,10 @@
-package app
+package views
 
 import (
-	"github.com/carreter/tasktree-go/app/commandview"
-	"github.com/carreter/tasktree-go/app/treeview"
+	"github.com/carreter/tasktree-go/app"
+	"github.com/carreter/tasktree-go/app/views/command"
+	"github.com/carreter/tasktree-go/app/views/tree"
 	"github.com/carreter/tasktree-go/pkg/tasktree"
-	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -17,12 +17,12 @@ const (
 )
 
 type Model struct {
-	taskTree *tasktree.TaskTree
+	ctx *app.Context
 
-	commandView      commandview.Model
+	commandView      command.Model
 	commandViewStyle lipgloss.Style
 
-	treeView      treeview.Model
+	treeView      tree.Model
 	treeViewStyle lipgloss.Style
 
 	width  int
@@ -32,13 +32,10 @@ type Model struct {
 }
 
 func NewModel(taskTree *tasktree.TaskTree) Model {
-	commandView := textinput.New()
-	commandView.Prompt = ""
-
 	return Model{
-		taskTree:    taskTree,
-		commandView: commandview.New(taskTree),
-		treeView:    treeview.NewModel(taskTree),
+		ctx:         app.NewContext(taskTree),
+		commandView: command.New(taskTree),
+		treeView:    tree.NewModel(taskTree),
 		focus:       treeViewFocus,
 	}
 }
@@ -53,7 +50,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case treeViewFocus:
 		var newTreeView tea.Model
 		newTreeView, focusedCmd = m.treeView.Update(msg)
-		m.treeView = newTreeView.(treeview.Model)
+		m.treeView = newTreeView.(tree.Model)
 	case commandFocus:
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
@@ -65,7 +62,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		var newCommandView tea.Model
 		newCommandView, focusedCmd = m.commandView.Update(msg)
-		m.commandView = newCommandView.(commandview.Model)
+		m.commandView = newCommandView.(command.Model)
 	}
 
 	var globalCmd tea.Cmd
@@ -92,7 +89,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m Model) View() string {
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
-		//fmt.Sprintf("%+v", m.taskTree),
 		m.treeViewStyle.Render(m.treeView.View()),
 		m.commandViewStyle.Render(m.commandView.View()),
 	)

@@ -1,4 +1,4 @@
-package treeview
+package tree
 
 import (
 	"fmt"

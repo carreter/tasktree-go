@@ -7,6 +7,7 @@ require (
 	github.com/charmbracelet/bubbletea v0.26.4
 	github.com/charmbracelet/lipgloss v0.11.1-0.20240618201632-5a82e41aea3a
 	github.com/google/uuid v1.6.0
+	github.com/sanity-io/litter v1.5.5
 )
 
 require (

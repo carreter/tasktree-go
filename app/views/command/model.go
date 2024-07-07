@@ -1,7 +1,8 @@
-package commandview
+package command
 
 import (
 	"fmt"
+	"github.com/carreter/tasktree-go/app"
 	"github.com/carreter/tasktree-go/pkg/task"
 	"github.com/carreter/tasktree-go/pkg/tasktree"
 	"github.com/carreter/tasktree-go/pkg/util"
@@ -12,11 +13,19 @@ import (
 	"unicode"
 )
 
+type Command interface {
+	Call(...string) (string, error)
+	Usage() string
+	Name() string
+}
+
 type Model struct {
+	ctx       *app.Context
 	taskTree  *tasktree.TaskTree
 	focused   bool
 	textInput textinput.Model
 	errorMsg  string
+	commands  []Command
 }
 
 func New(taskTree *tasktree.TaskTree) Model {
