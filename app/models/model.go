@@ -1,9 +1,9 @@
-package views
+package models
 
 import (
 	"github.com/carreter/tasktree-go/app"
-	"github.com/carreter/tasktree-go/app/views/command"
-	"github.com/carreter/tasktree-go/app/views/tree"
+	"github.com/carreter/tasktree-go/app/models/command"
+	"github.com/carreter/tasktree-go/app/models/tree"
 	"github.com/carreter/tasktree-go/pkg/tasktree"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"

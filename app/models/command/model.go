@@ -3,7 +3,6 @@ package command
 import (
 	"fmt"
 	"github.com/carreter/tasktree-go/app"
-	"github.com/carreter/tasktree-go/app/views/command/commands"
 	"github.com/carreter/tasktree-go/pkg/util"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -31,15 +30,17 @@ type Model struct {
 
 func New(ctx *app.Context) Model {
 	textInput := textinput.New()
-	model := Model{
+	m := Model{
 		textInput: textInput,
 		ctx:       ctx,
+		commands:  make(map[string]Command),
 	}
-	model.RegisterCommand(commands.DeleteCommand{})
-	model.RegisterCommand(commands.AddCommand{})
-	model.RegisterCommand(commands.AddSubtaskCommand{})
+	m.RegisterCommand(DeleteCommand{})
+	m.RegisterCommand(AddCommand{})
+	m.RegisterCommand(AddSubtaskCommand{})
+	m.RegisterCommand(HelpCommand{Commands: &m.commands})
 
-	return model
+	return m
 }
 
 func (m Model) Init() tea.Cmd {
@@ -73,7 +74,7 @@ func (m Model) View() string {
 	if !m.focused {
 		m.textInput.Prompt = ""
 		if m.errorMsg != "" {
-			m.textInput.Placeholder = m.errorMsg
+			m.textInput.Placeholder = "error: " + m.errorMsg
 			m.textInput.PlaceholderStyle = m.textInput.PlaceholderStyle.Bold(true).Foreground(lipgloss.Color("1"))
 		} else if m.outMsg != "" {
 			m.textInput.Placeholder = m.outMsg
@@ -120,7 +121,7 @@ func (m *Model) CallCommand() tea.Cmd {
 }
 
 func (m *Model) RegisterCommand(cmd Command) {
-
+	m.commands[cmd.Name()] = cmd
 }
 
 func parseRawArgs(raw string) []string {
