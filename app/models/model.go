@@ -32,9 +32,10 @@ type Model struct {
 }
 
 func NewModel(taskTree *tasktree.TaskTree) Model {
+	ctx := app.NewContext(taskTree)
 	return Model{
-		ctx:         app.NewContext(taskTree),
-		commandView: command.New(taskTree),
+		ctx:         ctx,
+		commandView: command.New(ctx),
 		treeView:    tree.NewModel(taskTree),
 		focus:       treeViewFocus,
 	}

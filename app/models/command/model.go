@@ -3,8 +3,7 @@ package command
 import (
 	"fmt"
 	"github.com/carreter/tasktree-go/app"
-	"github.com/carreter/tasktree-go/pkg/task"
-	"github.com/carreter/tasktree-go/pkg/tasktree"
+	"github.com/carreter/tasktree-go/app/views/command/commands"
 	"github.com/carreter/tasktree-go/pkg/util"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -14,26 +13,33 @@ import (
 )
 
 type Command interface {
-	Call(...string) (string, error)
+	Run(*app.Context, ...string) (string, string)
 	Usage() string
 	Name() string
 }
 
 type Model struct {
-	ctx       *app.Context
-	taskTree  *tasktree.TaskTree
+	ctx *app.Context
+
 	focused   bool
 	textInput textinput.Model
 	errorMsg  string
-	commands  []Command
+	outMsg    string
+
+	commands map[string]Command
 }
 
-func New(taskTree *tasktree.TaskTree) Model {
+func New(ctx *app.Context) Model {
 	textInput := textinput.New()
-	return Model{
-		taskTree:  taskTree,
+	model := Model{
 		textInput: textInput,
+		ctx:       ctx,
 	}
+	model.RegisterCommand(commands.DeleteCommand{})
+	model.RegisterCommand(commands.AddCommand{})
+	model.RegisterCommand(commands.AddSubtaskCommand{})
+
+	return model
 }
 
 func (m Model) Init() tea.Cmd {
@@ -41,7 +47,6 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -70,6 +75,8 @@ func (m Model) View() string {
 		if m.errorMsg != "" {
 			m.textInput.Placeholder = m.errorMsg
 			m.textInput.PlaceholderStyle = m.textInput.PlaceholderStyle.Bold(true).Foreground(lipgloss.Color("1"))
+		} else if m.outMsg != "" {
+			m.textInput.Placeholder = m.outMsg
 		} else {
 			m.textInput.Placeholder = "Type \":\" to enter command mode"
 		}
@@ -97,59 +104,23 @@ func (m *Model) CallCommand() tea.Cmd {
 		return nil
 	}
 
-	switch args[0] {
-	case "q", "quit":
+	if args[0] == "q" || args[0] == "quit" {
 		return tea.Quit
-	case "add":
-		if len(args) < 2 {
-			m.errorMsg = "usage: add <task name> [<task description]"
-		}
-
-		newTask := task.Task{Id: task.Id(args[1]), Name: args[1]}
-		if len(args) > 2 {
-			newTask.Description = strings.Trim(strings.Join(args[2:], " "), "\"")
-		}
-
-		err := m.taskTree.AddTask(newTask)
-		if err != nil {
-			m.errorMsg = fmt.Sprintf("failed to add task: %v", err)
-		}
-	case "add-subtask":
-		if len(args) < 3 {
-			m.errorMsg = "usage: add-subtask <parent task id> <subtask name> [<subtask description]"
-			return nil
-		}
-
-		newTask := task.Task{Id: task.Id(args[2]), Name: args[2]}
-		if len(args) > 3 {
-			newTask.Description = strings.Trim(strings.Join(args[3:], " "), "\"")
-		}
-
-		err := m.taskTree.AddTask(newTask)
-		if err != nil {
-			m.errorMsg = fmt.Sprintf("failed to add task: %v", err)
-			return nil
-		}
-		err = m.taskTree.MarkSubtask(task.Id(args[1]), newTask.Id)
-		if err != nil {
-			m.errorMsg = fmt.Sprintf("failed to add subtask: %v", err)
-			return nil
-		}
-	case "delete":
-		if len(args) != 2 {
-			m.errorMsg = "usage: delete <task id>"
-			return nil
-		}
-		err := m.taskTree.DeleteTask(task.Id(args[1]))
-		if err != nil {
-			m.errorMsg = fmt.Sprintf("failed to delete task: %v", err)
-			return nil
-		}
-	default:
-		m.errorMsg = fmt.Sprintf("unknown command: %s", args[0])
 	}
 
+	command, exists := m.commands[args[0]]
+	if !exists {
+		m.errorMsg = fmt.Sprintf("unknown command: %s", args[0])
+		return nil
+	}
+
+	m.outMsg, m.errorMsg = command.Run(m.ctx, args...)
+
 	return nil
+}
+
+func (m *Model) RegisterCommand(cmd Command) {
+
 }
 
 func parseRawArgs(raw string) []string {
